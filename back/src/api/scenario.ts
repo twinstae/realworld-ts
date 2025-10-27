@@ -68,6 +68,7 @@ export function runTestScenario(
 			const logs: string[] = [];
 
 			try {
+				context.setNow(TEST_ARTICLE.createdAt);
 				logs.push("before GET /api/articles");
 				const before = await client.get("/api/articles");
 

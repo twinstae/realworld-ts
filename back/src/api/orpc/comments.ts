@@ -1,17 +1,17 @@
 import type { AppContext } from "../context";
-import { ORPCError, os } from "@orpc/server";
+import { os } from "@orpc/server";
 import * as t from "@sinclair/typebox";
 import {
 	MultipleCommentsResponse,
 	SingleCommentResponse,
 } from "../../schema/typebox/comments";
-import { StandardEncodeSchema } from "../../schema/typebox/standard";
+import { StandardDecodeSchema } from "../../schema/typebox/standard";
 import { createComment } from "../../domain/articles/comments/Comment";
 
 export const createCommentsRoutes = (ctx: AppContext) => ({
 	list: os
 		.route({ method: "GET", path: "/api/articles/{slug}/comments" })
-		.input(StandardEncodeSchema(t.Object({ slug: t.String() })))
+		.input(StandardDecodeSchema(t.Object({ slug: t.String() })))
 		.output(MultipleCommentsResponse)
 		.handler(async (c) => {
 			const comments = await ctx.repo.comment.listByArticleSlug(c.input.slug);
@@ -20,7 +20,7 @@ export const createCommentsRoutes = (ctx: AppContext) => ({
 	create: os
 		.route({ method: "POST", path: "/api/articles/{slug}/comments" })
 		.input(
-			StandardEncodeSchema(
+			StandardDecodeSchema(
 				t.Object({
 					slug: t.String(),
 					comment: t.Object({ body: t.String() }),
@@ -44,7 +44,7 @@ export const createCommentsRoutes = (ctx: AppContext) => ({
 			method: "DELETE",
 			path: "/api/articles/{slug}/comments/:id",
 		})
-		.input(StandardEncodeSchema(t.Object({ slug: t.String(), id: t.String() })))
+		.input(StandardDecodeSchema(t.Object({ slug: t.String(), id: t.String() })))
 		.handler(async (c) => {
 			await ctx.repo.comment.deleteBySlugAndId(c.input.slug, c.input.id);
 			return new Response("", { status: 204 });

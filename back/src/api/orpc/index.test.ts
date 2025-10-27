@@ -78,11 +78,13 @@ test("orpc client test", async () => {
 		comments: [],
 	});
 
-	const comment = await client.articles.comments.create({
+	const { comment } = await client.articles.comments.create({
 		slug: ANOTHER_ARTICLE.slug,
 		comment: {
 			body: "Test Comment",
 		},
 	});
+
+	expect(comment.body).toEqual("Test Comment");
 });
 runTest("orpc", async (ctx) => createApp(ctx));
