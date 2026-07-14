@@ -12,9 +12,10 @@ import {
 	MultipleArticlesResponse,
 	SingleArticleResponse,
 } from "../../schema/typebox/articles";
-import { createArticle, updateArticle } from "../../domain/articles/Article";
+import { Article, createArticle, updateArticle } from "../../domain/articles/Article";
 import { t } from "elysia";
 import { AlreadyExistError, NotExistError } from "../../domain/errors";
+import invariant from "tiny-invariant";
 
 type FastifyTypebox = FastifyInstance<
 	RawServerDefault,
@@ -52,7 +53,9 @@ export function registerArticles(ctx: AppContext) {
 					},
 				},
 				async (request, reply) => {
-					const article = createArticle(request.body.article, ctx);
+					const dto = request.body.article as { title: string; description: string; body: string };
+					invariant(dto, "dto is required");
+					const article = createArticle(dto, ctx);
 
 					await ctx.repo.article.saveBySlug(article.slug, (old) => {
 						if (old) {
@@ -79,7 +82,7 @@ export function registerArticles(ctx: AppContext) {
 					},
 				},
 				async (request, reply) => {
-					const slug = request.params.slug;
+					const slug = request.params.slug as string;
 					const article = await ctx.repo.article.getBySlug(slug);
 
 					if (article === undefined) {
@@ -103,8 +106,9 @@ export function registerArticles(ctx: AppContext) {
 					},
 				},
 				async (request, reply) => {
-					const slug = request.params.slug;
-
+					const slug = request.params.slug as string;
+					const article = request.body.article as { title: string; description: string; body: string };
+					invariant(article, "article is required");
 					const result = await ctx.repo.article.saveBySlug(
 						slug,
 						(oldArticle) => {
@@ -112,7 +116,7 @@ export function registerArticles(ctx: AppContext) {
 								throw new NotExistError("");
 							}
 
-							return updateArticle(oldArticle, request.body.article, ctx);
+							return updateArticle(oldArticle, article, ctx);
 						},
 					);
 
@@ -134,7 +138,7 @@ export function registerArticles(ctx: AppContext) {
 				},
 				async (request, reply) => {
 					const slug = request.params.slug;
-
+					invariant(slug, "slug is required");
 					await ctx.repo.article.deleteBySlug(slug);
 
 					return "";

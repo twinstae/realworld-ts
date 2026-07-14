@@ -15,6 +15,7 @@ import {
 import { t } from "elysia";
 import { AlreadyExistError } from "../../domain/errors.ts";
 import { createComment } from "../../domain/articles/comments/Comment.ts";
+import invariant from "tiny-invariant";
 
 type FastifyTypebox = FastifyInstance<
 	RawServerDefault,
@@ -39,6 +40,7 @@ export function registerComments(ctx: AppContext) {
 					},
 				},
 				async (request) => {
+					invariant(request.params.slug, "slug is required");
 					const comments = await ctx.repo.comment.listByArticleSlug(
 						request.params.slug,
 					);
@@ -60,7 +62,11 @@ export function registerComments(ctx: AppContext) {
 					},
 				},
 				async (request, reply) => {
-					const comment = createComment(request.body.comment, ctx);
+
+					const bodyComment = request.body.comment;
+					invariant(request.params.slug, "slug is required");
+					invariant(bodyComment?.body, "comment is required");
+					const comment = createComment({ body: bodyComment.body }, ctx);
 
 					await ctx.repo.comment.saveBySlugAndId(
 						request.params.slug,
@@ -93,6 +99,8 @@ export function registerComments(ctx: AppContext) {
 				},
 				async (request, reply) => {
 					const { slug, id } = request.params;
+					invariant(slug, "slug is required");
+					invariant(id, "id is required");
 
 					await ctx.repo.comment.deleteBySlugAndId(slug, id);
 

@@ -1,6 +1,5 @@
-import { describeRoute } from "hono-openapi";
+import { describeRoute, resolver } from "hono-openapi";
 import { type BaseIssue, type BaseSchema, getDescription } from "valibot";
-import { resolver } from "hono-openapi/valibot";
 
 export const simpleRoute = <
 	SchemaT extends BaseSchema<unknown, unknown, BaseIssue<unknown>>,
@@ -20,6 +19,5 @@ export const simpleRoute = <
 				description: getDescription(resSchema) ?? "",
 			},
 		},
-		validateResponse: true,
 	});
 };

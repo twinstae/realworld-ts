@@ -3,7 +3,7 @@ import * as v from "valibot";
 import { prettyJSON } from "hono/pretty-json";
 import slugify from "cjk-slug";
 import { simpleRoute } from "./openapiUtils";
-import { describeRoute, openAPISpecs } from "hono-openapi";
+import { describeRoute, openAPIRouteHandler } from "hono-openapi";
 import createFakeArticleRepo from "../../persistence/FakeArticleRepo";
 import {
 	multipleArticlesResponseDto,
@@ -210,7 +210,7 @@ export function createApp(ctx: AppContext) {
 
 	app.get(
 		"/openapi.json",
-		openAPISpecs(app, {
+		openAPIRouteHandler(app, {
 			documentation: {
 				info: {
 					title: "Cosmic Js API",
